@@ -7,10 +7,12 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 TABLE_NAME = os.getenv("TABLE_NAME")
 TABLE_FIELDS = os.getenv("TABLE_FIELDS")
+EXCEL_FILENAME = os.getenv("EXCEL_FILENAME", "output.xlsx")
 
 print("Conectando ao banco em:", DATABASE_URL)
 print("Tabela configurada:", TABLE_NAME)
 print("Campos configurados:", TABLE_FIELDS)
+print("Nome do arquivo Excel:", EXCEL_FILENAME)
 
 engine = create_engine(DATABASE_URL)
 
@@ -30,6 +32,9 @@ with engine.connect() as connection:
 df = pd.DataFrame(rows, columns=columns)
 print(f"Encontrados {len(df)} registros com workload diferente de 0.")
 
-output_path = "Congressistas_Certificados.xlsx"
+sheets_dir = "sheets"
+os.makedirs(sheets_dir, exist_ok=True)
+
+output_path = os.path.join(sheets_dir, EXCEL_FILENAME)
 df.to_excel(output_path, index=False)
 print(f"Planilha salva em: {output_path}")

@@ -11,26 +11,17 @@ engine = create_engine(DATABASE_URL)
 
 with engine.connect() as connection:
     query = text("""
-    SELECT table_schema, table_name
-    FROM information_schema.tables
-    WHERE table_schema NOT IN ('information_schema', 'pg_catalog');
+        SELECT name, email, phone, course, institution, cpf
+        FROM public.candidate_simtech
+        WHERE workload <> 0;
     """)
     result = connection.execute(query)
-    tables = result.fetchall()
+    rows = result.fetchall()
+    columns = result.keys()
 
-df = pd.DataFrame(tables, columns=["table_schema", "table_name"])
-print("Tabelas encontradas:")
-print(df)
+df = pd.DataFrame(rows, columns=columns)
+print(f"Encontrados {len(df)} registros com workload diferente de 0.")
 
-with engine.connect() as connection:
-    search_query = text("""
-    SELECT table_schema, table_name
-    FROM information_schema.tables
-    WHERE table_name ILIKE '%candidatesimtech%';
-    """)
-    search_result = connection.execute(search_query)
-    search_tables = search_result.fetchall()
-
-df_search = pd.DataFrame(search_tables, columns=["table_schema", "table_name"])
-print("Busca pela tabela 'candidatesimtech':")
-print(df_search)
+output_path = "Congressitas_Certificado.xlsx"
+df.to_excel(output_path, index=False)
+print(f"Planilha salva em: {output_path}")
